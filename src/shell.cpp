@@ -1,5 +1,15 @@
 #include "shell.h"
 
-int Shell::run() {
-  return 1;
+#include <string>
+
+#include "dbg.h"
+
+int Shell::run(std::istream& in, std::ostream& out, std::ostream& err) {
+  std::string line;
+  while (std::getline(in, line)) {
+    DBG("Got line: " << line);
+
+
+  }
+  return 0;
 }
