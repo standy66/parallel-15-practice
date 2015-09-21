@@ -8,20 +8,33 @@
 
 #include "shell.hpp"
 #include "life_game.hpp"
+#include "utils.hpp"
+#include "exceptions.hpp"
 
 LifeGame* game = NULL;
 
-void start(std::istream& args, std::ostream& out, std::ostream& err) {
-  int width, height;
-  args >> width >> height;
+using utility::intVal;
+using utility::toString;
+
+void inline argsCheck(const Shell::Args& args, int from, int to) {
+  if (args.size() < from || args.size() > to) {
+    throw ActionException("Invalid number of arguments.");
+  }
+}
+
+void start(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 3, 3);
+  int width = intVal(args[1]);
+  int height = intVal(args[2]);
   if (game != NULL)
     delete game;
   game = new LifeGame(width, height);
 }
 
-void status(std::istream& args, std::ostream& out, std::ostream& err) {
+void status(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 1, 1);
   if (game == NULL) {
-    throw ShellException("No game started");
+    throw ActionException("No game started");
   } else {
     int width = game->getWidth();
     int height = game->getHeight();
@@ -37,24 +50,24 @@ void status(std::istream& args, std::ostream& out, std::ostream& err) {
   }
 }
 
-void run(std::istream& args, std::ostream& out, std::ostream& err) {
+void run(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 2, 2);
   if (game == NULL) {
-    throw ShellException("No game started");
+    throw ActionException("No game started");
   } else {
-    int k;
-    args >> k;
+    int k = intVal(args[1]);
     for (int i = 0; i < k; ++i) {
       game->nextStep();
     }
   }
 }
 
-void animate(std::istream& args, std::ostream& out, std::ostream& err) {
+void animate(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 2, 2);
   if (game == NULL) {
-    throw ShellException("No game started");
+    throw ActionException("No game started");
   } else {
-    int delay;
-    args >> delay;
+    int delay = intVal(args[1]);
     int width = game->getWidth();
     int height = game->getHeight();
     while (true) {

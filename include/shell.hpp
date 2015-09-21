@@ -3,23 +3,21 @@
 #include <istream>
 #include <ostream>
 #include <map>
-#include <stdexcept>
-
-class ShellException: public std::runtime_error {
-public:
-  explicit ShellException(const std::string& what);
-};
+#include <vector>
 
 class Shell {
 public:
-  typedef void (*Action) (std::istream& argument_stream, std::ostream& out,
-                         std::ostream& err);
+  typedef std::vector<std::string> Args;
+  typedef void (*Action) (const Args& args, std::ostream& out);
 
   Shell(const std::map<std::string, Action>& actionMap);
   Shell();
 
-  int run(std::istream& in, std::ostream& out, std::ostream& err);
+  int run(std::istream& in, std::ostream& out, std::ostream& err) const;
 
 private:
+  typedef std::map<std::string, Action> ActionMap;
   std::map<std::string, Action> actionMap;
+
+  Args extractArgs(const std::string& line) const;
 };
