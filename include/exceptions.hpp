@@ -19,3 +19,9 @@ public:
   ConversionException(const std::string& what)
     : BasicException(what) { }
 };
+
+class LegacyException: public BasicException {
+public:
+  LegacyException(const std::string& what)
+    : BasicException(what) { }
+};
