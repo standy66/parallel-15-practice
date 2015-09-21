@@ -11,18 +11,17 @@
 
 LifeGame* game = NULL;
 
-int start(std::istream& args, std::ostream& out, std::ostream& err) {
+void start(std::istream& args, std::ostream& out, std::ostream& err) {
   int width, height;
   args >> width >> height;
   if (game != NULL)
     delete game;
   game = new LifeGame(width, height);
-  return 0;
 }
 
-int status(std::istream& args, std::ostream& out, std::ostream& err) {
+void status(std::istream& args, std::ostream& out, std::ostream& err) {
   if (game == NULL) {
-    err << "No game started";
+    throw ShellException("No game started");
   } else {
     int width = game->getWidth();
     int height = game->getHeight();
@@ -36,12 +35,11 @@ int status(std::istream& args, std::ostream& out, std::ostream& err) {
       out << std::endl;
     }
   }
-  return 0;
 }
 
-int run(std::istream& args, std::ostream& out, std::ostream& err) {
+void run(std::istream& args, std::ostream& out, std::ostream& err) {
   if (game == NULL) {
-    err << "No game started";
+    throw ShellException("No game started");
   } else {
     int k;
     args >> k;
@@ -49,12 +47,11 @@ int run(std::istream& args, std::ostream& out, std::ostream& err) {
       game->nextStep();
     }
   }
-  return 0;
 }
 
-int animate(std::istream& args, std::ostream& out, std::ostream& err) {
+void animate(std::istream& args, std::ostream& out, std::ostream& err) {
   if (game == NULL) {
-    err << "No game started";
+    throw ShellException("No game started");
   } else {
     int delay;
     args >> delay;
@@ -75,7 +72,6 @@ int animate(std::istream& args, std::ostream& out, std::ostream& err) {
       game->nextStep();
     }
   }
-  return 0;
 }
 
 int main() {

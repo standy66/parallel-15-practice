@@ -5,25 +5,27 @@
 
 #include "dbg.hpp"
 
+ShellException::ShellException(const std::string& what)
+  : std::runtime_error(what) { }
+
 Shell::Shell() : actionMap() { }
 
-Shell::Shell(std::map<std::string, Shell::Action> map)
+Shell::Shell(const std::map<std::string, Shell::Action>& map)
   : actionMap(map) { }
 
 int Shell::run(std::istream& in, std::ostream& out, std::ostream& err) {
   std::string line;
   while (std::getline(in, line)) {
-    //DBG("Got line: " << line);
     std::stringstream linestream;
     linestream << line;
     std::string commandName;
     linestream >> commandName;
-    //DBG("Command name: " << commandName);
     Action action = actionMap[commandName];
-    if (action != 0) {
-      int resultCode = action(linestream, out, err);
-      if (resultCode != 0) {
-        err << "Command " << commandName << " exited with code " << resultCode << std::endl;
+    if (action != NULL) {
+      try {
+        action(linestream, out, err);
+      } catch (ShellException& e) {
+        err << e.what();
       }
     } else {
       err << "Command " << commandName << " not found" << std::endl;
