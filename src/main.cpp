@@ -6,8 +6,8 @@
 #include <ctime>
 #include <unistd.h>
 
-#include "shell.h"
-#include "life_game.h"
+#include "shell.hpp"
+#include "life_game.hpp"
 
 LifeGame* game = NULL;
 

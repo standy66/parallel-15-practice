@@ -1,5 +1,5 @@
-#include "life_game.h"
-#include "dbg.h"
+#include "life_game.hpp"
+#include "dbg.hpp"
 
 #include <cstdlib>
 

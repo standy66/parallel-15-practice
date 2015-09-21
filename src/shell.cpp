@@ -1,9 +1,9 @@
-#include "shell.h"
+#include "shell.hpp"
 
 #include <string>
 #include <sstream>
-  
-#include "dbg.h"
+
+#include "dbg.hpp"
 
 Shell::Shell() : actionMap() { }
 
