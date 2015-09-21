@@ -2,7 +2,7 @@
 
 #include <string>
 #include <sstream>
-
+  
 #include "dbg.h"
 
 Shell::Shell() : actionMap() { }

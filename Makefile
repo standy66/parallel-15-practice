@@ -1,28 +1,41 @@
-BUILDDIR = build/
-SRCDIR = src/
-HEADERSDIR = headers/
-CC = clang++
-CFLAGS = -Wall -std=c++03 -I$(HEADERSDIR) -DDEBUG
-LDFLAGS =
-SRCLIST = main.cpp shell.cpp
-OBJECTS = $(addprefix $(BUILDDIR), $(SRCLIST:.cpp=.o))
-EXECUTABLE = $(addprefix $(BUILDDIR), life)
+DEBUG_DIR := build/debug/
+RELEASE_DIR := build/release/
+SRC_DIR := src/
+INCLUDE_DIR := include/
 
-all: $(EXECUTABLE)
+CC := clang++
+CC_DEBUG_FLAGS := -Wall -Wextra -std=c++03 -I$(INCLUDE_DIR) -DDEBUG -g
+CC_RELEASE_FLAGS := -Wall -Wextra -O3 -std=c++03 -I$(INCLUDE_DIR)
+LD_FLAGS := -lpthread
 
-run: all
-	$(EXECUTABLE)
+SRC_LIST := main.cpp shell.cpp life_game.cpp
 
-rebuild: clean all
+DEBUG_OBJECTS := $(addprefix $(DEBUG_DIR), $(SRC_LIST:.cpp=.o))
+RELEASE_OBJECTS := $(addprefix $(RELEASE_DIR), $(SRC_LIST:.cpp=.o))
+OBJECTS := $(DEBUG_OBJECTS) $(RELEASE_OBJECTS)
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $^ -o $@
+DEBUG_TARGET := bin/debug
+RELEASE_TARGET := bin/release
 
-$(BUILDDIR)%.o: $(SRCDIR)%.cpp
-	$(CC) $(CFLAGS) -c $^ -o $@
+all: debug release
+
+debug: $(DEBUG_TARGET)
+
+release: $(RELEASE_TARGET)
+
+$(DEBUG_TARGET): $(DEBUG_OBJECTS)
+	$(CC) $^ $(LD_FLAGS) -o $@
+
+$(RELEASE_TARGET): $(RELEASE_OBJECTS)
+	$(CC) $^ $(LD_FLAGS) -o $@
+
+$(DEBUG_DIR)%.o: $(SRC_DIR)%.cpp
+	$(CC) -c $^ $(CC_DEBUG_FLAGS) -o $@
+
+$(RELEASE_DIR)%.o: $(SRC_DIR)%.cpp
+	$(CC) -c $^ $(CC_RELEASE_FLAGS) -o $@
 
 clean:
-	-rm $(EXECUTABLE)
-	-rm $(OBJECTS)
+	-rm -f $(OBJECTS) $(RELEASE_TARGET) $(DEBUG_TARGET)
 
-.PHONY: clean all run
+.PHONY: clean all debug release
