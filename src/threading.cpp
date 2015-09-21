@@ -9,6 +9,8 @@
 //===== Thread =====
 
 void Thread::join() {
+  //TODO: sometimes wait can be interrupted by a signal handler
+  // so we should check for it and don't throw any exceptions
   if (pthread_join(pthread, NULL) != 0) {
     THROW_LEGACY_EXCEPTION
   }
@@ -57,6 +59,8 @@ Mutex::~Mutex() {
 }
 
 void Mutex::lock() {
+  //TODO: sometimes wait can be interrupted by a signal handler
+  // so we should check for it and don't throw any exceptions
   if (pthread_mutex_lock(&mutex) != 0) {
     THROW_LEGACY_EXCEPTION
   }
@@ -80,3 +84,45 @@ bool Mutex::trylock() {
 }
 
 //===== end Mutex =====
+
+//===== Semaphore =====
+
+Semaphore::Semaphore(unsigned int initValue) {
+  if (sem_init(&semaphore, 0, initValue) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+Semaphore::~Semaphore() {
+  if (sem_destroy(&semaphore) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+void Semaphore::wait() {
+  //TODO: sometimes wait can be interrupted by a signal handler
+  // so we should check for it and don't throw any exceptions
+  if (sem_wait(&semaphore) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+void Semaphore::post() {
+  if (sem_post(&semaphore) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+bool Semaphore::trywait() {
+  if (sem_trywait(&semaphore) == 0) {
+    return true;
+  } else {
+    if (errno = EAGAIN) {
+      return false;
+    } else {
+      THROW_LEGACY_EXCEPTION
+    }
+  }
+}
+
+//===== end Semaphore =====
