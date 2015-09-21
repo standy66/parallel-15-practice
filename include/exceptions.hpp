@@ -1,6 +1,10 @@
 #pragma once
 
 #include <stdexcept>
+#include <errno.h>
+#include <string.h>
+
+#include "utils.hpp"
 
 class BasicException: public std::runtime_error {
 public:
@@ -25,3 +29,7 @@ public:
   LegacyException(const std::string& what)
     : BasicException(what) { }
 };
+
+
+#define THROW_LEGACY_EXCEPTION throw LegacyException( \
+  utility::toString(__LINE__) + std::string(__FILE__) + std::string(strerror(errno)));
