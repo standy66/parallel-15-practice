@@ -3,7 +3,11 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-class Thread {
+#include "utils.hpp"
+
+using utility::NonCopyable;
+
+class Thread: NonCopyable {
 public:
   void join();
   bool isRunning();
@@ -14,14 +18,11 @@ protected:
   virtual void routine() = 0;
 
 private:
-  Thread(Thread&) { }
-  Thread(const Thread&) { }
-
   static void* routineWrapper(void*);
   pthread_t pthread;
 };
 
-class Mutex {
+class Mutex: NonCopyable {
   friend class Cond;
 public:
   Mutex();
@@ -36,7 +37,7 @@ private:
   pthread_mutex_t mutex;
 };
 
-class Semaphore {
+class Semaphore: NonCopyable {
 public:
   Semaphore(unsigned int initValue);
   virtual ~Semaphore();
@@ -45,13 +46,11 @@ public:
   //true if the value is decreased
   bool trywait();
 
-
-
 private:
   sem_t semaphore;
 };
 
-class Cond {
+class Cond: NonCopyable {
 public:
   Cond();
   virtual ~Cond();
