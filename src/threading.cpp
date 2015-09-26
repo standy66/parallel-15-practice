@@ -126,3 +126,44 @@ bool Semaphore::trywait() {
 }
 
 //===== end Semaphore =====
+
+//===== Cond =====
+
+Cond::Cond() {
+  if (pthread_condattr_init(&condAttr) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+  if (pthread_cond_init(&cond, &condAttr) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+Cond::~Cond() {
+  if (pthread_condattr_destroy(&condAttr) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+  if (pthread_cond_destroy(&cond) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+void Cond::notify() {
+  if (pthread_cond_signal(&cond) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+void Cond::notifyAll() {
+  if (pthread_cond_broadcast(&cond) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+void Cond::wait(Mutex& m) {
+  if (pthread_cond_wait(&cond, &m.mutex) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+}
+
+
+//===== end Cond =====

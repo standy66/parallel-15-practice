@@ -22,6 +22,7 @@ private:
 };
 
 class Mutex {
+  friend class Cond;
 public:
   Mutex();
   virtual ~Mutex();
@@ -48,4 +49,17 @@ public:
 
 private:
   sem_t semaphore;
-}
+};
+
+class Cond {
+public:
+  Cond();
+  virtual ~Cond();
+  void notify();
+  void notifyAll();
+  void wait(Mutex& m);
+
+private:
+  pthread_cond_t cond;
+  pthread_condattr_t condAttr;
+};
