@@ -3,8 +3,10 @@
 #include <errno.h>
 #include <string>
 #include <string.h>
+#include <typeinfo>
 
 #include "exceptions.hpp"
+#include "dbg.hpp"
 
 //===== Thread =====
 
@@ -17,16 +19,21 @@ void Thread::join() {
 }
 
 bool Thread::isRunning() {
-  return true;
+  return running;
 }
+
+Thread::Thread() :running(false) { }
 
 Thread::~Thread() {
   //TODO: should write something here
 }
 
-Thread::Thread() {
-  if (pthread_create(&pthread, NULL, routineWrapper, this) != 0) {
-    THROW_LEGACY_EXCEPTION
+void Thread::run() {
+  if (!running) {
+    running = true;
+    if (pthread_create(&pthread, NULL, routineWrapper, this) != 0) {
+      THROW_LEGACY_EXCEPTION
+    }
   }
 }
 

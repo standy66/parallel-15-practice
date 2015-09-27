@@ -11,8 +11,11 @@
 #include "utils.hpp"
 #include "exceptions.hpp"
 #include "threading.hpp"
+#include "dbg.hpp"
 
 LifeGame* game = NULL;
+
+Mutex m;
 
 using utility::intVal;
 using utility::toString;
@@ -24,12 +27,13 @@ void inline argsCheck(const Shell::Args& args, int from, int to) {
 }
 
 void start(const Shell::Args& args, std::ostream& out) {
-  argsCheck(args, 3, 3);
+  argsCheck(args, 4, 4);
   int width = intVal(args[1]);
   int height = intVal(args[2]);
+  int threads = intVal(args[3]);
   if (game != NULL)
     delete game;
-  game = new LifeGame(width, height);
+  game = new LifeGame(width, height, threads);
 }
 
 void status(const Shell::Args& args, std::ostream& out) {
@@ -57,13 +61,20 @@ void run(const Shell::Args& args, std::ostream& out) {
     throw ActionException("No game started");
   } else {
     int k = intVal(args[1]);
-    for (int i = 0; i < k; ++i) {
-      game->nextStep();
-    }
+    game->run(k);
   }
 }
 
-void animate(const Shell::Args& args, std::ostream& out) {
+
+void stop(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 1, 1);
+  if (game == NULL) {
+    throw ActionException("No game started");
+  }
+  game->stop();
+  out << game->getCurrentStep();
+}
+/*void animate(const Shell::Args& args, std::ostream& out) {
   argsCheck(args, 2, 2);
   if (game == NULL) {
     throw ActionException("No game started");
@@ -86,7 +97,7 @@ void animate(const Shell::Args& args, std::ostream& out) {
       game->nextStep();
     }
   }
-}
+}*/
 
 
 int main() {
@@ -94,7 +105,8 @@ int main() {
   actionMap["start"] = start;
   actionMap["run"] = run;
   actionMap["status"] = status;
-  actionMap["animate"] = animate;
+  actionMap["stop"] = stop;
+  //actionMap["animate"] = animate;
   Shell shell(actionMap);
   shell.run(std::cin, std::cout, std::cerr);
   return 0;

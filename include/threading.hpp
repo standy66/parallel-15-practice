@@ -12,12 +12,14 @@ public:
   void join();
   bool isRunning();
   virtual ~Thread();
+  void run();
 
 protected:
-  Thread();
   virtual void routine() = 0;
+  Thread();
 
 private:
+  bool running;
   static void* routineWrapper(void*);
   pthread_t pthread;
 };

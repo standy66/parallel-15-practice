@@ -12,6 +12,25 @@ std::string toString(int value) {
   return temp.str();
 }
 
+std::string toString(const std::vector<std::vector<bool> >& vec) {
+  std::ostringstream temp;
+  for (int i = 0; i < vec.size(); ++i) {
+    for (int j = 0; j < vec[i].size(); ++j) {
+      temp << vec[i][j];
+    }
+    temp << std::endl;
+  }
+  return temp.str();
+}
+
+std::string toString(const std::vector<bool>& vec) {
+  std::ostringstream temp;
+  for (int i = 0; i < vec.size(); ++i) {
+    temp << vec[i];
+  }
+  return temp.str();
+}
+
 int intVal(const std::string& str) {
   std::istringstream temp(str);
   int result;
