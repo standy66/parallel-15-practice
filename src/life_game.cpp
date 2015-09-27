@@ -18,7 +18,7 @@ LifeGame::LifeGame(int width, int height, int threadCount)
   master = new MasterThread(field, threadCount);
 }
 
-LifeGame::LifeGame(const field_t& field)
+LifeGame::LifeGame(const field_t& field, int threadCount)
 : field(field), syncNeeded(false) {
   this->width = field.size();
   this->height = field[0].size();
