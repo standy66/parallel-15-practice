@@ -9,6 +9,7 @@ class MasterThread;
 class LifeGame {
 public:
   LifeGame(int width, int height, int threadCount);
+  LifeGame(const field_t& field);
   virtual ~LifeGame();
 
   void run(int steps);
