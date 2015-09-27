@@ -4,7 +4,9 @@
 #include <map>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <unistd.h>
+#include <sstream>
 
 #include "shell.hpp"
 #include "life_game.hpp"
@@ -27,13 +29,36 @@ void inline argsCheck(const Shell::Args& args, int from, int to) {
 }
 
 void start(const Shell::Args& args, std::ostream& out) {
-  argsCheck(args, 4, 4);
-  int width = intVal(args[1]);
-  int height = intVal(args[2]);
-  int threads = intVal(args[3]);
-  if (game != NULL)
-    delete game;
-  game = new LifeGame(width, height, threads);
+  argsCheck(args, 3, 4);
+  if (args.size() == 4) {
+    int width = intVal(args[1]);
+    int height = intVal(args[2]);
+    int threads = intVal(args[3]);
+    if (game != NULL)
+      delete game;
+    game = new LifeGame(width, height, threads);
+  } else {
+    std::string filename = args[1];
+    int threads = intVal(args[2]);
+    std::fstream csvFile(filename.c_str());
+    std::string line;
+    std::string token;
+    field_t field;
+    while (std::getline(csvFile, line)) {
+      std::vector<bool> row;
+      std::istringstream lineStream(line);
+      while (std::getline(lineStream, token, ',')) {
+        DBG(token);
+        if (token != ",") {
+          int value = intVal(token);
+          row.push_back(value);
+        }
+      }
+      field.push_back(row);
+    }
+    DBG(toString(field));
+    game = new LifeGame(field, threads);
+  }
 }
 
 void status(const Shell::Args& args, std::ostream& out) {

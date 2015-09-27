@@ -143,7 +143,8 @@ field_t MasterThread::getField() {
 
 WorkerThread::WorkerThread(int id, const field_t& allField, int from, int to,
   MasterThread& master)
-:id(id), master(master), topSem(0), bottomSem(0), stepCount(0) {
+:id(id), master(master), topSem(0), bottomSem(0),
+ topRead(1), bottomRead(1), stepCount(0) {
   //DBG("thread " << id << " got allField " << toString(allField));
   //DBG("thread " << id << " got from " << from << " to " << to);
   //DBG("thread " << id << " allField size " << allField.size());
@@ -205,14 +206,16 @@ void WorkerThread::syncBorders() {
 
 void WorkerThread::sendBorders() {
   if (top != NULL) {
-      top->bottomLine = field[1];
-      DBG("thead " << id << " sent top->bottomLine " << toString(field[1]));
-      top->bottomSem.post();
+    top->bottomRead.wait();
+    top->bottomLine = field[1];
+    DBG("thead " << id << " sent top->bottomLine " << toString(field[1]));
+    top->bottomSem.post();
   }
   if (bottom != NULL) {
-      bottom->topLine = field[field.size() - 2];
-      DBG("thread " << id << " sent bottom->topLine " << toString(field[field.size() - 2]));
-      bottom->topSem.post();
+    bottom->topRead.wait();
+    bottom->topLine = field[field.size() - 2];
+    DBG("thread " << id << " sent bottom->topLine " << toString(field[field.size() - 2]));
+    bottom->topSem.post();
   }
 }
 
@@ -220,7 +223,9 @@ void WorkerThread::receiveBorders() {
   topSem.wait();
   DBG("thread " << id << " got topline " << toString(topLine));
   field[0] = topLine;
+  topRead.post();
   bottomSem.wait();
   DBG("thread " << id << " got bottomline " << toString(bottomLine));
   field[field.size() - 1] = bottomLine;
+  bottomRead.post();
 }

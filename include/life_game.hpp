@@ -46,6 +46,8 @@ protected:
   std::vector<bool> bottomLine;
   Semaphore topSem;
   Semaphore bottomSem;
+  Semaphore topRead;
+  Semaphore bottomRead;
   void step();
   MasterThread& master;
   WorkerThread* top;
