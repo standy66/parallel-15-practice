@@ -4,6 +4,8 @@
 
 typedef std::vector<std::vector<bool> > field_t;
 
+//TODO: refactor this
+
 class MasterThread;
 
 class LifeGame {

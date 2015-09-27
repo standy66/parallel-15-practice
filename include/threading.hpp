@@ -7,6 +7,7 @@
 
 using utility::NonCopyable;
 
+//TODO: additional fields add
 class Thread: NonCopyable {
 public:
   void join();
@@ -24,6 +25,7 @@ private:
   pthread_t pthread;
 };
 
+//TODO: implement resource locker
 class Mutex: NonCopyable {
   friend class Cond;
 public:

@@ -3,6 +3,9 @@
 #include <iostream>
 #include "threading.hpp"
 
+
+//TODO: refactor this
+
 extern Mutex m;
 
 #ifndef DEBUG
