@@ -11,7 +11,7 @@ public:
 private:
   NonCopyable(NonCopyable&) { }
   NonCopyable(const NonCopyable&) { }
-  NonCopyable& operator=(const NonCopyable&) { }
+  NonCopyable& operator=(const NonCopyable&) { return *this; }
 };
 
 std::string toString(int value);

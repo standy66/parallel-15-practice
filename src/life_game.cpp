@@ -88,14 +88,18 @@ MasterThread::MasterThread(const field_t& field, int threadCount)
   bottom = workerThreads[0];
   bottom->top = this;
   top->bottom = this;
+  running = true;
 }
 
 MasterThread::~MasterThread() {
+  running = false;
+  //run(1);
   for (int i = 0; i < threadCount; ++i) {
     //TODO: join threads
-    delete workerThreads[i];
+    //workerThreads[i]->cancel();
+    //delete workerThreads[i];
   }
-  delete workerThreads;
+  //delete[] workerThreads;
 }
 
 void MasterThread::syncBorders() {
@@ -134,7 +138,7 @@ int MasterThread::getCurrentStep() {
 field_t MasterThread::getField() {
   field_t field;
   for (int i = 0; i < threadCount; ++i) {
-    for (int j = 1; j < workerThreads[i]->field.size() - 1; ++j) {
+    for (size_t j = 1; j < workerThreads[i]->field.size() - 1; ++j) {
       field.push_back(workerThreads[i]->field[j]);
     }
   }
@@ -143,8 +147,8 @@ field_t MasterThread::getField() {
 
 WorkerThread::WorkerThread(int id, const field_t& allField, int from, int to,
   MasterThread& master)
-:id(id), master(master), topSem(0), bottomSem(0),
- topRead(1), bottomRead(1), stepCount(0) {
+:id(id), topSem(0), bottomSem(0),
+ topRead(1), bottomRead(1), master(master),  stepCount(0) {
   //DBG("thread " << id << " got allField " << toString(allField));
   //DBG("thread " << id << " got from " << from << " to " << to);
   //DBG("thread " << id << " allField size " << allField.size());
@@ -161,7 +165,7 @@ WorkerThread::WorkerThread(int id, const field_t& allField, int from, int to,
 
 void WorkerThread::routine() {
   //TODO: what if this is started before initialization
-  while (true) {
+  while (master.running) {
     stepCount++;
     DBG("thread" << id << " step " << stepCount);
     //master.mutex.lock();
@@ -178,8 +182,8 @@ void WorkerThread::routine() {
 
 void WorkerThread::step() {
   field_t cpy = field;
-  for (int i = 1; i < field.size() - 1; ++i) {
-    for (int j = 0; j < field[i].size(); ++j) {
+  for (size_t i = 1; i < field.size() - 1; ++i) {
+    for (size_t j = 0; j < field[i].size(); ++j) {
       int height = field[i].size();
       int numAlive = 0;
       for (int di = -1; di <= 1; ++di) {

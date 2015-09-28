@@ -22,14 +22,17 @@ Mutex m;
 using utility::intVal;
 using utility::toString;
 
-void inline argsCheck(const Shell::Args& args, int from, int to) {
+void inline argsCheck(const Shell::Args& args, size_t from, size_t to,
+  std::ostream& out, const std::string& usage) {
   if (args.size() < from || args.size() > to) {
-    throw ActionException("Invalid number of arguments.");
+    out << "Usage: " << usage << std::endl;
+    throw ActionException("Invalid number of arguments. Expected from " +
+    toString(from) + " to " + toString(to));
   }
 }
 
 void start(const Shell::Args& args, std::ostream& out) {
-  argsCheck(args, 3, 4);
+  argsCheck(args, 3, 4, out, "start <width> <height> <threadCount> or start <csvFile> <threadCount>");
   if (args.size() == 4) {
     int width = intVal(args[1]);
     int height = intVal(args[2]);
@@ -57,12 +60,15 @@ void start(const Shell::Args& args, std::ostream& out) {
       field.push_back(row);
     }
     DBG(toString(field));
+    if (field.size() == 0) {
+      throw ActionException("File " + filename + " not found or empty.");
+    }
     game = new LifeGame(field, threads);
   }
 }
 
 void status(const Shell::Args& args, std::ostream& out) {
-  argsCheck(args, 1, 1);
+  argsCheck(args, 1, 1, out, "status");
   if (game == NULL) {
     throw ActionException("No game started");
   } else {
@@ -81,7 +87,7 @@ void status(const Shell::Args& args, std::ostream& out) {
 }
 
 void run(const Shell::Args& args, std::ostream& out) {
-  argsCheck(args, 2, 2);
+  argsCheck(args, 2, 2, out, "run <stepCount>");
   if (game == NULL) {
     throw ActionException("No game started");
   } else {
@@ -90,9 +96,14 @@ void run(const Shell::Args& args, std::ostream& out) {
   }
 }
 
+void quit(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 1, 1, out, "quit");
+  delete game;
+  throw ShellSilentInterruptException("quit");
+}
 
 void stop(const Shell::Args& args, std::ostream& out) {
-  argsCheck(args, 1, 1);
+  argsCheck(args, 1, 1, out, "stop");
   if (game == NULL) {
     throw ActionException("No game started");
   }
@@ -131,6 +142,7 @@ int main() {
   actionMap["run"] = run;
   actionMap["status"] = status;
   actionMap["stop"] = stop;
+  actionMap["quit"] = quit;
   //actionMap["animate"] = animate;
   Shell shell(actionMap);
   shell.run(std::cin, std::cout, std::cerr);

@@ -12,6 +12,12 @@ public:
     : std::runtime_error(what) { }
 };
 
+class ShellSilentInterruptException: public BasicException {
+public:
+  ShellSilentInterruptException(const std::string& what)
+    : BasicException(what) { }
+};
+
 class ActionException: public BasicException {
 public:
   ActionException(const std::string& what)

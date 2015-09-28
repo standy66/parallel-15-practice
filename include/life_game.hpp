@@ -38,7 +38,7 @@ public:
   WorkerThread(int id, const field_t& field, int from, int to, MasterThread& master);
 
 protected:
-  virtual void routine() override;
+  virtual void routine();
 
   field_t field;
   int id;
@@ -76,6 +76,7 @@ private:
   Cond cond;
   Mutex mutex;
   int maxStepCount;
-  virtual void syncBorders() override;
+  virtual void syncBorders();
+  bool running;
 
 };

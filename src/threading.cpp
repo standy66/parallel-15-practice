@@ -11,11 +11,16 @@
 //===== Thread =====
 
 void Thread::join() {
+  if (!running)
+    return;
   //TODO: sometimes wait can be interrupted by a signal handler
   // so we should check for it and don't throw any exceptions
-  if (pthread_join(pthread, NULL) != 0) {
+  int res = pthread_join(pthread, NULL);
+  if (res != 0) {
+    DBG(res << ESRCH);
     THROW_LEGACY_EXCEPTION
   }
+  running = false;
 }
 
 bool Thread::isRunning() {
@@ -32,8 +37,11 @@ void Thread::run() {
   if (!running) {
     running = true;
     if (pthread_create(&pthread, NULL, routineWrapper, this) != 0) {
+      running = false;
       THROW_LEGACY_EXCEPTION
     }
+    //int oldType = 0;
+    //pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldType);
   }
 }
 
@@ -41,6 +49,11 @@ void* Thread::routineWrapper(void* arg) {
   Thread* thread = static_cast<Thread*>(arg);
   thread->routine();
   return NULL;
+}
+
+
+void Thread::cancel() {
+  pthread_cancel(pthread);
 }
 
 //===== end Thread =====
@@ -78,6 +91,7 @@ void Mutex::unlock() {
     THROW_LEGACY_EXCEPTION
   }
 }
+
 
 bool Mutex::trylock() {
   int resultCode = pthread_mutex_trylock(&mutex);
@@ -124,7 +138,7 @@ bool Semaphore::trywait() {
   if (sem_trywait(&semaphore) == 0) {
     return true;
   } else {
-    if (errno = EAGAIN) {
+    if (errno == EAGAIN) {
       return false;
     } else {
       THROW_LEGACY_EXCEPTION
@@ -149,6 +163,7 @@ Cond::~Cond() {
   if (pthread_condattr_destroy(&condAttr) != 0) {
     THROW_LEGACY_EXCEPTION
   }
+  notifyAll();
   if (pthread_cond_destroy(&cond) != 0) {
     THROW_LEGACY_EXCEPTION
   }

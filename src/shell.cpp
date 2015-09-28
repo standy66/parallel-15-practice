@@ -13,9 +13,11 @@ Shell::Shell(const std::map<std::string, Shell::Action>& map)
 
 int Shell::run(std::istream& in, std::ostream& out, std::ostream& err) const {
   std::string line;
+  out << "$ ";
   while (std::getline(in, line)) {
     Args args = extractArgs(line);
     if (args.size() == 0) {
+      out << "$ ";
       continue;
     }
     ActionMap::const_iterator iter = actionMap.find(args[0]);
@@ -23,12 +25,15 @@ int Shell::run(std::istream& in, std::ostream& out, std::ostream& err) const {
       Action action = iter->second;
       try {
         action(args, out);
+      } catch (ShellSilentInterruptException&) {
+        return 0;
       } catch (BasicException& e) {
         err << e.what() << std::endl;
       }
     } else {
       err << "Command " << args[0] << " not found" << std::endl;
     }
+    out << "$ ";
   }
   return 0;
 }

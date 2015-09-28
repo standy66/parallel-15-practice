@@ -14,6 +14,7 @@ public:
   bool isRunning();
   virtual ~Thread();
   void run();
+  void cancel();
 
 protected:
   virtual void routine() = 0;
