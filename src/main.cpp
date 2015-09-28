@@ -10,12 +10,13 @@
 
 #include "shell.hpp"
 #include "life_game.hpp"
+#include "life_game_singlethreaded.hpp"
 #include "utils.hpp"
 #include "exceptions.hpp"
 #include "threading.hpp"
 #include "dbg.hpp"
 
-LifeGame* game = NULL;
+ILifeGame* game = NULL;
 
 Mutex m;
 
@@ -37,12 +38,22 @@ void start(const Shell::Args& args, std::ostream& out) {
     int width = intVal(args[1]);
     int height = intVal(args[2]);
     int threads = intVal(args[3]);
+    if (width <= 0 || height <= 0 || threads <= 0) {
+      throw ActionException("width, height and threadsCount must be positive");
+    }
     if (game != NULL)
       delete game;
-    game = new LifeGame(width, height, threads);
+    if (threads > 1) {
+      game = LifeGame::random(width, height, threads);
+    } else {
+      game = LifeGameSingleThreaded::random(width, height);
+    }
   } else {
     std::string filename = args[1];
     int threads = intVal(args[2]);
+    if (threads <= 0) {
+      throw ActionException("threadsCount must be positive");
+    }
     std::fstream csvFile(filename.c_str());
     std::string line;
     std::string token;
@@ -63,7 +74,11 @@ void start(const Shell::Args& args, std::ostream& out) {
     if (field.size() == 0) {
       throw ActionException("File " + filename + " not found or empty.");
     }
-    game = new LifeGame(field, threads);
+    if (threads > 1) {
+      game = LifeGame::fromField(field, threads);
+    } else {
+      game = LifeGameSingleThreaded::fromField(field);
+    }
   }
 }
 

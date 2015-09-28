@@ -1,32 +1,36 @@
 #include <vector>
 
 #include "threading.hpp"
+#include "life_game_interface.hpp"
 
-typedef std::vector<std::vector<bool> > field_t;
 
 //TODO: refactor this
 
 class MasterThread;
 
-class LifeGame {
+class LifeGame: public ILifeGame {
 public:
-  LifeGame(int width, int height, int threadCount);
-  LifeGame(const field_t& field, int threadCount);
   virtual ~LifeGame();
 
-  void run(int steps);
-  int getWidth();
-  int getHeight();
-  bool unitAliveAt(int x, int y);
-  void stop();
-  int getCurrentStep();
+  virtual void run(int steps);
+  virtual size_t getWidth();
+  virtual size_t getHeight();
+  virtual bool unitAliveAt(coord_t x, coord_t y);
+  virtual void stop();
+  virtual int getCurrentStep();
+
+  static ILifeGame* fromField(const field_t& field, int threadCount);
+  static ILifeGame* random(size_t width, size_t height, int threadCount);
 
 private:
+  LifeGame(size_t width, size_t height, int threadCount);
+  LifeGame(const field_t& field, int threadCount);
+
   field_t field;
   bool syncNeeded;
-  int width;
+  size_t width;
   MasterThread *master;
-  int height;
+  size_t height;
 
   void sync();
 };

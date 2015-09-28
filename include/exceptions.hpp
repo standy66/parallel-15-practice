@@ -30,6 +30,12 @@ public:
     : BasicException(what) { }
 };
 
+class IllegalArgumentException: public BasicException {
+public:
+  IllegalArgumentException(const std::string& what)
+    : BasicException(what) { }
+};
+
 class LegacyException: public BasicException {
 public:
   LegacyException(const std::string& what)

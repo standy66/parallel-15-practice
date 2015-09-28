@@ -1,15 +1,16 @@
 #include "life_game.hpp"
 #include "dbg.hpp"
 #include "utils.hpp"
+#include "exceptions.hpp"
 
 #include <cstdlib>
 
 using utility::toString;
 
-LifeGame::LifeGame(int width, int height, int threadCount)
+LifeGame::LifeGame(size_t width, size_t height, int threadCount)
 : field(width, std::vector<bool>(height, false)), syncNeeded(false) {
-  for (int i = 0; i < width; ++i) {
-    for (int j = 0; j < height; ++j) {
+  for (size_t i = 0; i < width; ++i) {
+    for (size_t j = 0; j < height; ++j) {
       field[i][j] = rand() % 2;
     }
   }
@@ -25,6 +26,24 @@ LifeGame::LifeGame(const field_t& field, int threadCount)
   master = new MasterThread(field, threadCount);
 }
 
+ILifeGame* LifeGame::fromField(const field_t& field, int threadCount) {
+  size_t width = field.size();
+  size_t height = 0;
+  if (width > 0) {
+    height = field[0].size();
+    for (size_t i = 0; i < width; ++i) {
+      if (height != field[i].size()) {
+        throw IllegalArgumentException("field not rectangular");
+      }
+    }
+  }
+  return new LifeGame(field, threadCount);
+}
+
+ILifeGame* LifeGame::random(size_t width, size_t height, int threadCount) {
+  return new LifeGame(width, height, threadCount);
+}
+
 LifeGame::~LifeGame() {
   delete master;
 }
@@ -34,20 +53,20 @@ void LifeGame::run(int steps) {
   syncNeeded = true;
 }
 
-int LifeGame::getWidth() {
+size_t LifeGame::getWidth() {
   sync();
   return width;
 }
 
-int LifeGame::getHeight() {
+size_t LifeGame::getHeight() {
   sync();
   return height;
 }
 
-bool LifeGame::unitAliveAt(int x, int y) {
+bool LifeGame::unitAliveAt(coord_t x, coord_t y) {
   sync();
-  if (x < 0 || x >= width || y < 0 || y >= height) {
-    return false;
+  if (x >= width || y >= height) {
+    throw IllegalArgumentException("invalid coordinates");
   }
   return field[x][y];
 }
