@@ -27,6 +27,10 @@ void LifeGameSingleThreaded::run(int numberOfSteps) {
   }
 }
 
+void LifeGameSingleThreaded::runAndWait(int numberOfSteps) {
+  run(numberOfSteps);
+}
+
 size_t LifeGameSingleThreaded::getWidth() {
   return width;
 }

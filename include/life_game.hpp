@@ -13,6 +13,7 @@ public:
   virtual ~LifeGame();
 
   virtual void run(int steps);
+  virtual void runAndWait(int steps);
   virtual size_t getWidth();
   virtual size_t getHeight();
   virtual bool unitAliveAt(coord_t x, coord_t y);
@@ -72,12 +73,15 @@ public:
   void stop();
   int getCurrentStep();
   field_t getField();
+  void wait();
 
 
 private:
   WorkerThread** workerThreads;
   int threadCount;
   Cond cond;
+  Cond joinCond;
+  Mutex joinMutex;
   Mutex mutex;
   int maxStepCount;
   virtual void syncBorders();

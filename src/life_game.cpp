@@ -53,6 +53,11 @@ void LifeGame::run(int steps) {
   syncNeeded = true;
 }
 
+void LifeGame::runAndWait(int steps) {
+  master->run(steps);
+  master->wait();
+}
+
 size_t LifeGame::getWidth() {
   sync();
   return width;
@@ -124,6 +129,10 @@ MasterThread::~MasterThread() {
 void MasterThread::syncBorders() {
   mutex.lock();
   while (stepCount >= maxStepCount) {
+    joinMutex.lock();
+    joinCond.notifyAll();
+    joinMutex.unlock();
+
     cond.wait(mutex);
   }
   mutex.unlock();
@@ -131,6 +140,14 @@ void MasterThread::syncBorders() {
 
   receiveBorders();
   sendBorders();
+}
+
+void MasterThread::wait() {
+  joinMutex.lock();
+  while (stepCount < maxStepCount) {
+    joinCond.wait(joinMutex);
+  }
+  joinMutex.unlock();
 }
 
 void MasterThread::run(int steps) {

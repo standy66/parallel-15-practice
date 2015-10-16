@@ -10,6 +10,7 @@ typedef std::vector<bool> row_t;
 class ILifeGame {
 public:
   virtual void run(int numberOfSteps) = 0;
+  virtual void runAndWait(int numberOfSteps) = 0;
   virtual size_t getWidth() = 0;
   virtual size_t getHeight() = 0;
   virtual bool unitAliveAt(coord_t x, coord_t y) = 0;

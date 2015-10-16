@@ -7,6 +7,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <sstream>
+#include <ctime>
 
 #include "shell.hpp"
 #include "life_game.hpp"
@@ -111,6 +112,19 @@ void run(const Shell::Args& args, std::ostream& out) {
   }
 }
 
+void runwait(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 2, 2, out, "runwait <stepCount>");
+  if (game == NULL) {
+    throw ActionException("No game started");
+  } else {
+    int k = intVal(args[1]);
+    clock_t time = clock();
+    game->runAndWait(k);
+    clock_t delta = clock() - time;
+    out << "Done. Elapsed time: " << (delta * 1.0f / CLOCKS_PER_SEC) << " s" << std::endl;
+  }
+}
+
 void quit(const Shell::Args& args, std::ostream& out) {
   argsCheck(args, 1, 1, out, "quit");
   delete game;
@@ -158,6 +172,7 @@ int main() {
   actionMap["status"] = status;
   actionMap["stop"] = stop;
   actionMap["quit"] = quit;
+  actionMap["runwait"] = runwait;
   //actionMap["animate"] = animate;
   Shell shell(actionMap);
   shell.run(std::cin, std::cout, std::cerr);

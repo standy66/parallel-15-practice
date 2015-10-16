@@ -3,6 +3,7 @@
 class LifeGameSingleThreaded: public ILifeGame {
 public:
   virtual void run(int numberOfSteps);
+  virtual void runAndWait(int numberOfSteps);
   virtual size_t getWidth();
   virtual size_t getHeight();
   virtual bool unitAliveAt(coord_t x, coord_t y);
