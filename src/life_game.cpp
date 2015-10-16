@@ -120,8 +120,6 @@ MasterThread::~MasterThread() {
   run(1000);
   join();
   for (int i = 0; i < threadCount; ++i) {
-    //TODO: join threads
-    //workerThreads[i]->cancel();
     workerThreads[i]->join();
     delete workerThreads[i];
   }

@@ -29,9 +29,7 @@ bool Thread::isRunning() {
 
 Thread::Thread() :running(false) { }
 
-Thread::~Thread() {
-  //TODO: should write something here
-}
+Thread::~Thread() { }
 
 void Thread::run() {
   if (!running) {

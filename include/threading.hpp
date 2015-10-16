@@ -7,7 +7,6 @@
 
 using utility::NonCopyable;
 
-//TODO: additional fields add
 class Thread: NonCopyable {
 public:
   void join();
