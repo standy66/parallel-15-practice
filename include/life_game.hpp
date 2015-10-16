@@ -37,7 +37,7 @@ private:
 };
 
 
-class WorkerThread: Thread {
+class WorkerThread: public Thread {
   friend class MasterThread;
 public:
   WorkerThread(int id, const field_t& field, int from, int to, MasterThread& master);
@@ -64,7 +64,7 @@ protected:
   void receiveBorders();
 };
 
-class MasterThread: WorkerThread {
+class MasterThread: public WorkerThread {
   friend class WorkerThread;
 public:
   MasterThread(const field_t& field, int threadCount);

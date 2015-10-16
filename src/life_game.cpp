@@ -117,13 +117,15 @@ MasterThread::MasterThread(const field_t& field, int threadCount)
 
 MasterThread::~MasterThread() {
   running = false;
-  //run(1);
+  run(1000);
+  join();
   for (int i = 0; i < threadCount; ++i) {
     //TODO: join threads
     //workerThreads[i]->cancel();
-    //delete workerThreads[i];
+    workerThreads[i]->join();
+    delete workerThreads[i];
   }
-  //delete[] workerThreads;
+  delete[] workerThreads;
 }
 
 void MasterThread::syncBorders() {
