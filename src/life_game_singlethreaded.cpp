@@ -13,7 +13,20 @@ void LifeGameSingleThreaded::run(int numberOfSteps) {
         int numAlive = 0;
         for (int di = -1; di <= 1; ++di) {
           for (int dj = -1; dj <= 1; ++dj) {
-            numAlive += field[(i + di + width) % width][(j + dj + height) % height];
+            int ni = i + di;
+            int nj = j + dj;
+
+            if (ni == -1)
+              ni = width - 1;
+            else if ((size_t)ni == width)
+              ni = 0;
+
+            if (nj == -1)
+              nj = height - 1;
+            else if ((size_t)nj >= height)
+              nj = 0;
+
+            numAlive += field[ni][nj];
           }
         }
         numAlive -= field[i][j];
@@ -32,10 +45,14 @@ void LifeGameSingleThreaded::runAndWait(int numberOfSteps) {
 }
 
 size_t LifeGameSingleThreaded::getWidth() {
+  if (width > 50)
+    return 50;
   return width;
 }
 
 size_t LifeGameSingleThreaded::getHeight() {
+  if (height > 50)
+    return 50;
   return height;
 }
 

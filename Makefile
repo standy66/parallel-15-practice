@@ -3,12 +3,12 @@ RELEASE_DIR := build/release/
 SRC_DIR := src/
 INCLUDE_DIR := include/
 
-CC := clang++
+CC := g++
 CC_DEBUG_FLAGS := -Wall -Wextra -std=c++03 -I$(INCLUDE_DIR) -DDEBUG -g
 CC_RELEASE_FLAGS := -Wall -Wextra -O3 -std=c++03 -I$(INCLUDE_DIR)
 LD_FLAGS := -lpthread
 
-SRC_LIST := main.cpp shell.cpp life_game.cpp utils.cpp threading.cpp life_game_singlethreaded.cpp
+SRC_LIST := main.cpp shell.cpp life_game.cpp life_game_singlethreaded.cpp utils.cpp threading.cpp
 
 DEBUG_OBJECTS := $(addprefix $(DEBUG_DIR), $(SRC_LIST:.cpp=.o))
 RELEASE_OBJECTS := $(addprefix $(RELEASE_DIR), $(SRC_LIST:.cpp=.o))

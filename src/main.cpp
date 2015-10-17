@@ -33,6 +33,14 @@ void inline argsCheck(const Shell::Args& args, size_t from, size_t to,
   }
 }
 
+inline double rtClock() {
+  timespec tm;
+  clock_gettime(CLOCK_REALTIME, &tm);
+  double res = tm.tv_sec;
+  res += tm.tv_nsec * 1e-9;
+  return res;
+}
+
 void start(const Shell::Args& args, std::ostream& out) {
   argsCheck(args, 3, 4, out, "start <width> <height> <threadCount> or start <csvFile> <threadCount>");
   if (args.size() == 4) {
@@ -118,10 +126,10 @@ void runwait(const Shell::Args& args, std::ostream& out) {
     throw ActionException("No game started");
   } else {
     int k = intVal(args[1]);
-    clock_t time = clock();
+    double time = rtClock();
     game->runAndWait(k);
-    clock_t delta = clock() - time;
-    out << "Done. Elapsed time: " << (delta * 1.0f / CLOCKS_PER_SEC) << " s" << std::endl;
+    double delta = rtClock() - time;
+    out << "Done. Elapsed time: " << delta << " s" << std::endl;
   }
 }
 

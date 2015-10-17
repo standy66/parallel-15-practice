@@ -56,15 +56,20 @@ void LifeGame::run(int steps) {
 void LifeGame::runAndWait(int steps) {
   master->run(steps);
   master->wait();
+  syncNeeded = true;
 }
 
 size_t LifeGame::getWidth() {
   sync();
+  if (width > 50)
+    return 50;
   return width;
 }
 
 size_t LifeGame::getHeight() {
   sync();
+  if (height > 50)
+    return 50;
   return height;
 }
 
@@ -224,7 +229,12 @@ void WorkerThread::step() {
       int numAlive = 0;
       for (int di = -1; di <= 1; ++di) {
         for (int dj = -1; dj <= 1; ++dj) {
-          numAlive += field[i + di][(j + dj + height) % height];
+          int nj = j + dj;
+          if (nj < 0)
+            nj += height;
+          if (nj >= height)
+            nj -= height;
+          numAlive += field[i + di][nj];
         }
       }
       numAlive -= field[i][j];
