@@ -8,7 +8,7 @@
 
 extern Mutex m;
 
-#ifndef DEBUG
+#ifdef NDEBUG
 #define DBG(x) do {} while(0)
 #else
 #define DBG(x) do { m.lock(); std::cerr << x << std::endl; m.unlock(); } while (0)

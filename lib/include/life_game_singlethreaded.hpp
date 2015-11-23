@@ -10,6 +10,7 @@ public:
   virtual void stop();
   virtual int getCurrentStep();
   virtual ~LifeGameSingleThreaded();
+  virtual field_t getField();
 
   static ILifeGame* fromField(const field_t& field);
   static ILifeGame* random(size_t width, size_t height);

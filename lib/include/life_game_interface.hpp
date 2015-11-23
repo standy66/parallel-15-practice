@@ -16,5 +16,8 @@ public:
   virtual bool unitAliveAt(coord_t x, coord_t y) = 0;
   virtual void stop() = 0;
   virtual int getCurrentStep() = 0;
+  virtual field_t getField() {
+    return field_t();
+  }
   virtual ~ILifeGame() { }
 };

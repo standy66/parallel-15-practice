@@ -4,6 +4,9 @@
 
 #include "exceptions.hpp"
 
+field_t LifeGameSingleThreaded::getField() {
+  return field;
+}
 
 void LifeGameSingleThreaded::run(int numberOfSteps) {
   for (int i = 0; i < numberOfSteps; ++i) {
