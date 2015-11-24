@@ -6,6 +6,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 
 #include "dbg.hpp"
 #include "exceptions.hpp"
@@ -14,8 +15,7 @@
 #include "life_game_interface.hpp"
 #include "life_game_singlethreaded.hpp"
 
-using utility::intVal;
-using utility::toString;
+using namespace utility;
 
 Mutex m;
 
@@ -69,24 +69,32 @@ void start(const Shell::Args& args, std::ostream& out) {
     }
   }
   DBG(toString(field));
-
+  char* mem = (char*)malloc(packSize(field.size(), field[0].size()));
+  size_t size;
+  pack(field, mem, size);
+  DBG("packed");
+  DBG("unpacking");
+  field_t f = unpack(mem);
+  DBG(toString(f));
   //TODO: send field
 }
 void quit(const Shell::Args& args, std::ostream& out) {
   argsCheck(args, 1, 1, out, "quit");
+  //TODO: halt slaves
   throw ShellSilentInterruptException("quit");
 }
 
 void master() {
-    std::map<std::string, Shell::Action> actionMap;
-    actionMap["nodes"] = nodes;
-    actionMap["start"] = start;
-    actionMap["quit"] = quit;
-    Shell shell(actionMap);
-    shell.run(std::cin, std::cout, std::cout);
+  std::map<std::string, Shell::Action> actionMap;
+  actionMap["nodes"] = nodes;
+  actionMap["start"] = start;
+  actionMap["quit"] = quit;
+  Shell shell(actionMap);
+  shell.run(std::cin, std::cout, std::cout);
 }
 
 void slave() {
+  //TODO: slave
 
 }
 

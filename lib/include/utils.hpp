@@ -20,4 +20,9 @@ std::string toString(const std::vector<bool>& vec);
 
 int intVal(const std::string& str);
 
+size_t packSize(size_t width, size_t height);
+void pack(const std::vector<std::vector<bool> >& vec, size_t from, size_t to, char* dest, size_t& len);
+void pack(const std::vector<std::vector<bool> >& vec, char* dest, size_t& len);
+std::vector<std::vector<bool> > unpack(char* mem);
+
 } //end of namespace utility
