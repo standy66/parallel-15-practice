@@ -7,7 +7,9 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <ctime>
 
+#include "life_mpi.hpp"
 #include "dbg.hpp"
 #include "exceptions.hpp"
 #include "utils.hpp"
@@ -17,10 +19,21 @@
 
 using namespace utility;
 
+inline double rtClock() {
+  timespec tm;
+  clock_gettime(CLOCK_REALTIME, &tm);
+  double res = tm.tv_sec;
+  res += tm.tv_nsec * 1e-9;
+  return res;
+}
+
+
 Mutex m;
 
+LifeGameMpiMaster* mpiMaster = 0;
+
 void inline argsCheck(const Shell::Args& args, size_t from, size_t to,
-  std::ostream& out, const std::string& usage) {
+std::ostream& out, const std::string& usage) {
   if (args.size() < from || args.size() > to) {
     out << "Usage: " << usage << std::endl;
     throw ActionException("Invalid number of arguments. Expected from " +
@@ -63,25 +76,65 @@ void start(const Shell::Args& args, std::ostream& out) {
       }
       field.push_back(row);
     }
-    DBG(toString(field));
     if (field.size() == 0) {
       throw ActionException("File " + filename + " not found or empty.");
     }
   }
   DBG(toString(field));
-  char* mem = (char*)malloc(packSize(field.size(), field[0].size()));
-  size_t size;
-  pack(field, mem, size);
-  DBG("packed");
-  DBG("unpacking");
-  field_t f = unpack(mem);
-  DBG(toString(f));
-  //TODO: send field
+  if (mpiMaster != 0) {
+    //TODO: meaningful message
+    throw ActionException("old master");
+  }
+  mpiMaster = new LifeGameMpiMaster(field);
 }
+
 void quit(const Shell::Args& args, std::ostream& out) {
   argsCheck(args, 1, 1, out, "quit");
   //TODO: halt slaves
   throw ShellSilentInterruptException("quit");
+}
+
+void status(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 1, 1, out, "status");
+  if (mpiMaster == 0) {
+    throw ActionException("Not initialized");
+  } else {
+    mpiMaster->sync();
+    out << toString(mpiMaster->field) << std::endl;
+  }
+}
+
+void run(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 2, 2, out, "run <stepCount>");
+  int steps = intVal(args[1]);
+  if (mpiMaster == 0) {
+    throw ActionException("Not initialized");
+  } else {
+    mpiMaster->run(steps);
+  }
+}
+
+void runwait(const Shell::Args &args, std::ostream& out) {
+  argsCheck(args, 2, 2, out, "run <stepCount>");
+  int steps = intVal(args[1]);
+  if (mpiMaster == 0) {
+    throw ActionException("Not initialized");
+  } else {
+    double time = rtClock();
+    mpiMaster->runwait(steps);
+    double delta = rtClock() - time;
+    out << "Done. Time elapsed: " << delta << " s" << std::endl;
+    #include <ctime>
+  }
+}
+
+void stop(const Shell::Args& args, std::ostream& out) {
+  argsCheck(args, 1, 1, out, "stop");
+  if (mpiMaster == 0) {
+    throw ActionException("Not initialized");
+  } else {
+    mpiMaster->stop();
+  }
 }
 
 void master() {
@@ -89,13 +142,17 @@ void master() {
   actionMap["nodes"] = nodes;
   actionMap["start"] = start;
   actionMap["quit"] = quit;
+  actionMap["status"] = status;
+  actionMap["stop"] = stop;
+  actionMap["run"] = run;
+  actionMap["runwait"] = runwait;
   Shell shell(actionMap);
   shell.run(std::cin, std::cout, std::cout);
 }
 
 void slave() {
-  //TODO: slave
-
+  LifeGameMpiSlave s;
+  s.run();
 }
 
 int main(int argc, char** argv) {

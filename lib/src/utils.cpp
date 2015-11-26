@@ -47,7 +47,7 @@ size_t packSize(size_t width, size_t height) {
 }
 
 
-void pack(const std::vector<std::vector<bool> >& vec, size_t from, size_t to, char* dest, size_t& len) {
+void pack(const std::vector<std::vector<bool> >& vec, int from, int to, char* dest, size_t& len) {
   size_t width = to - from;
   size_t height = vec[0].size();
   size_t* casted = (size_t*)dest;
@@ -55,15 +55,15 @@ void pack(const std::vector<std::vector<bool> >& vec, size_t from, size_t to, ch
   casted[1] = height;
   dest += 2 * sizeof(size_t);
   size_t chars_in_row = (height + 7) / 8;
-  for (size_t i = from; i < to; ++i) {
+  for (int i = from; i < to; ++i) {
     for (size_t j = 0; j < chars_in_row; ++j) {
       char c = 0;
       for (size_t l = 0; l < 8 && 8 * j + l < height; ++l) {
-        if (vec[i][8 * j + l]) {
+        if (vec[(i + vec.size()) % vec.size()][8 * j + l]) {
           c |= (1 << l);
         }
       }
-      dest[i * chars_in_row + j] = c;
+      dest[(i - from) * chars_in_row + j] = c;
     }
   }
   len = 2 * sizeof(size_t) + chars_in_row * width;
