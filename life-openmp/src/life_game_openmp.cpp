@@ -1,16 +1,13 @@
-#include "life_game_singlethreaded.hpp"
+#include "life_game_openmp.hpp"
 
 #include <cstdlib>
 
 #include "exceptions.hpp"
 
-field_t LifeGameSingleThreaded::getField() {
-  return field;
-}
-
-void LifeGameSingleThreaded::run(int numberOfSteps) {
+void LifeGameOpenMP::run(int numberOfSteps) {
   for (int step = 0; step < numberOfSteps; ++step) {
     field_t cpy = field;
+    #pragma omp parallel for
     for (int i = 0; i < (int)width; ++i) {
       for (int j = 0; j < (int)height; ++j) {
         int numAlive = 0;
@@ -43,40 +40,9 @@ void LifeGameSingleThreaded::run(int numberOfSteps) {
   }
 }
 
-void LifeGameSingleThreaded::runAndWait(int numberOfSteps) {
-  run(numberOfSteps);
-}
+LifeGameOpenMP::~LifeGameOpenMP() { }
 
-size_t LifeGameSingleThreaded::getWidth() {
-  if (width > 50)
-    return 50;
-  return width;
-}
-
-size_t LifeGameSingleThreaded::getHeight() {
-  if (height > 50)
-    return 50;
-  return height;
-}
-
-bool LifeGameSingleThreaded::unitAliveAt(coord_t x, coord_t y) {
-  if (x >= width || y >= height) {
-    throw IllegalArgumentException("invalid coordinates");
-  }
-  return field[x][y];
-}
-
-void LifeGameSingleThreaded::stop() {
-  //do nothing
-}
-
-int LifeGameSingleThreaded::getCurrentStep() {
-  return currentStep;
-}
-
-LifeGameSingleThreaded::~LifeGameSingleThreaded() { }
-
-ILifeGame* LifeGameSingleThreaded::fromField(const field_t& field) {
+ILifeGame* LifeGameOpenMP::fromField(const field_t& field) {
   size_t width = field.size();
   size_t height = 0;
   if (width > 0) {
@@ -87,15 +53,15 @@ ILifeGame* LifeGameSingleThreaded::fromField(const field_t& field) {
       }
     }
   }
-  LifeGameSingleThreaded* game = new LifeGameSingleThreaded();
+  LifeGameOpenMP* game = new LifeGameOpenMP();
   game->field = field;
   game->width = width;
   game->height = height;
   return game;
 }
 
-ILifeGame* LifeGameSingleThreaded::random(size_t width, size_t height) {
-  LifeGameSingleThreaded* game = new LifeGameSingleThreaded();
+ILifeGame* LifeGameOpenMP::random(size_t width, size_t height) {
+  LifeGameOpenMP* game = new LifeGameOpenMP();
   game->width = width;
   game->height = height;
 

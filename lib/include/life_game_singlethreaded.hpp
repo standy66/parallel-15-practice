@@ -1,3 +1,4 @@
+#pragma once
 #include "life_game_interface.hpp"
 
 class LifeGameSingleThreaded: public ILifeGame {
@@ -15,7 +16,7 @@ public:
   static ILifeGame* fromField(const field_t& field);
   static ILifeGame* random(size_t width, size_t height);
 
-private:
+protected:
   field_t field;
   size_t width;
   size_t height;
