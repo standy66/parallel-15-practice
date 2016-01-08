@@ -19,15 +19,6 @@
 
 using namespace utility;
 
-inline double rtClock() {
-  timespec tm;
-  clock_gettime(CLOCK_REALTIME, &tm);
-  double res = tm.tv_sec;
-  res += tm.tv_nsec * 1e-9;
-  return res;
-}
-
-
 Mutex m;
 
 LifeGameMpiMaster* mpiMaster = 0;

@@ -7,6 +7,7 @@
 
 #include "exceptions.hpp"
 #include "dbg.hpp"
+#include "utils.hpp"
 
 //===== Thread =====
 
@@ -63,9 +64,6 @@ Mutex::Mutex() {
   if (pthread_mutexattr_init(&mutexAttr) != 0) {
     THROW_LEGACY_EXCEPTION
   }
-  if (pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_FAST_NP) != 0) {
-    THROW_LEGACY_EXCEPTION
-  }
   if (pthread_mutex_init(&mutex, &mutexAttr) != 0) {
     THROW_LEGACY_EXCEPTION
   }
@@ -106,33 +104,69 @@ bool Mutex::trylock() {
 
 //===== Semaphore =====
 
+int Semaphore::sem_count = 0;
+
 Semaphore::Semaphore(unsigned int initValue) {
+  #ifdef __MACH__
+  std::string prefix = "mipt_threading";
+  std::string name = prefix + utility::toString(sem_count);
+  psem = sem_open(name.c_str(), O_CREAT, 777, initValue);
+
+  #else
   if (sem_init(&semaphore, 0, initValue) != 0) {
     THROW_LEGACY_EXCEPTION
   }
+  #endif
 }
 
 Semaphore::~Semaphore() {
+  #ifdef __MACH__
+  sem_close(psem);
+  #else
   if (sem_destroy(&semaphore) != 0) {
     THROW_LEGACY_EXCEPTION
   }
+  #endif
 }
 
 void Semaphore::wait() {
   //TODO: sometimes wait can be interrupted by a signal handler
   // so we should check for it and don't throw any exceptions
+  #ifdef __MACH__
+  if (sem_wait(psem) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+  #else
   if (sem_wait(&semaphore) != 0) {
     THROW_LEGACY_EXCEPTION
   }
+  #endif
 }
 
 void Semaphore::post() {
+  #ifdef __MACH__
+  if (sem_post(psem) != 0) {
+    THROW_LEGACY_EXCEPTION
+  }
+  #else
   if (sem_post(&semaphore) != 0) {
     THROW_LEGACY_EXCEPTION
   }
+  #endif
 }
 
 bool Semaphore::trywait() {
+  #ifdef __MACH__
+  if (sem_trywait(psem) == 0) {
+    return true;
+  } else {
+    if (errno == EAGAIN) {
+      return false;
+    } else {
+      THROW_LEGACY_EXCEPTION
+    }
+  }
+  #else
   if (sem_trywait(&semaphore) == 0) {
     return true;
   } else {
@@ -142,6 +176,7 @@ bool Semaphore::trywait() {
       THROW_LEGACY_EXCEPTION
     }
   }
+  #endif
 }
 
 //===== end Semaphore =====

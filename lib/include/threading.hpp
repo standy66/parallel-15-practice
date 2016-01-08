@@ -51,7 +51,9 @@ public:
   bool trywait();
 
 private:
+  static int sem_count;
   sem_t semaphore;
+  sem_t *psem;
 };
 
 class Cond: NonCopyable {

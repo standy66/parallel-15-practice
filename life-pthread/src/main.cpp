@@ -21,8 +21,7 @@ ILifeGame* game = NULL;
 
 Mutex m;
 
-using utility::intVal;
-using utility::toString;
+using namespace utility;
 
 void inline argsCheck(const Shell::Args& args, size_t from, size_t to,
   std::ostream& out, const std::string& usage) {
@@ -31,14 +30,6 @@ void inline argsCheck(const Shell::Args& args, size_t from, size_t to,
     throw ActionException("Invalid number of arguments. Expected from " +
     toString(from) + " to " + toString(to));
   }
-}
-
-inline double rtClock() {
-  timespec tm;
-  clock_gettime(CLOCK_REALTIME, &tm);
-  double res = tm.tv_sec;
-  res += tm.tv_nsec * 1e-9;
-  return res;
 }
 
 void start(const Shell::Args& args, std::ostream& out) {
