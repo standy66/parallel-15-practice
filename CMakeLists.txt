@@ -3,11 +3,12 @@ project(parallel)
 find_package(MPI REQUIRED)
 set(CMAKE_CXX_FLAGS "-Wall -pedantic -Wextra -std=c++03 -fopenmp")
 include_directories(${MPI_INCLUDE_PATH})
-include_directories(lib/include life-pthread/include life-mpi1/include life-openmp/include)
+include_directories(lib/include life-pthread/include life-mpi1/include life-openmp/include life-mpi2/include)
 file(GLOB LIB_SOURCE lib/src/*.cpp)
 file(GLOB LIFE_PTHREAD_SOURCE life-pthread/src/*.cpp)
 file(GLOB LIGE_MPI_SOURCE life-mpi1/src/*.cpp)
 file(GLOB LIFE_OPENMP_SOURCE life-openmp/src/*.cpp)
+file(GLOB LIFE_MPI2_SOURCE life-mpi2/src/*.cpp)
 
 add_library(lib ${LIB_SOURCE})
 target_link_libraries(lib PRIVATE "-pthread")
@@ -17,13 +18,19 @@ add_executable(life_mpi ${LIGE_MPI_SOURCE})
 target_link_libraries(life_mpi lib ${MPI_LIBRARIES})
 add_executable(life_openmp ${LIFE_OPENMP_SOURCE})
 target_link_libraries(life_openmp lib)
+add_executable(life_mpi2 ${LIFE_MPI2_SOURCE})
+target_link_libraries(life_mpi2 lib ${MPI_LIBRARIES})
 
 if(MPI_COMPILE_FLAGS)
   set_target_properties(life_mpi PROPERTIES
+    COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+  set_target_properties(life_mpi2 PROPERTIES
     COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
 endif()
 
 if(MPI_LINK_FLAGS)
   set_target_properties(life_mpi PROPERTIES
+    LINK_FLAGS "${MPI_LINK_FLAGS}")
+  set_target_properties(life_mpi2 PROPERTIES
     LINK_FLAGS "${MPI_LINK_FLAGS}")
 endif()
